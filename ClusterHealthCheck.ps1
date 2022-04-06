@@ -107,6 +107,7 @@ foreach($vm in $VMs)
 	else {
 		$VMs_html += '<span class="label danger">' + $vm.State + '</span>'
 	}
+
 	$VMs_html += '</td></tr>'
 }
 $VMs_html += '</table>'
