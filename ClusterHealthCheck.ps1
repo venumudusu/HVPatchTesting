@@ -99,7 +99,15 @@ $body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
 $VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
 foreach($vm in $VMs)
 {
-	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td><td>' + $vm.State + '</td></tr>'
+	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td><td>' 
+	if($vm.State -eq "Running")
+	{
+		$VMs_html += '<span class="label success">' + $vm.State + '</span>'
+	}
+	else {
+		$VMs_html += '<span class="label danger">' + $vm.State + '</span>'
+	}
+	$VMs_html += '</td></tr>'
 }
 $VMs_html += '</table>'
 
