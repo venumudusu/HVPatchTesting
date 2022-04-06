@@ -23,18 +23,23 @@ $Error.Clear()
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
+Write-Host $Cluster
+
 
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
+Write-Host $ClusterNodes
 
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
+Write-Host $PhysicalDisks
 
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
+Write-Host $VirtualDisks
 
 $html  = @'
 <!DOCTYPE html>
