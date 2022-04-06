@@ -181,6 +181,9 @@ $html += $PhysicalDisks_html
 #Virtual Disks
 $html += $VirtualDisks_html
 
+#Virtual machines
+$html += $VMs_html
+
 $html += @'
 <br><br><br><br>
   <div class="footer">
