@@ -1,0 +1,16 @@
+---
+- name: Hyper-V Cluster Health Check Report
+  hosts: Clusters
+  gather_facts: false
+  tasks:
+    - name: Create temp file
+      win_tempfile:
+        state: file
+        suffix: temp
+
+      register: tempfile_1
+
+    - name: Run PowerShell Script
+      script: ClusterHealthCheck.ps1
+
+    
