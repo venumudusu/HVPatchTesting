@@ -26,7 +26,7 @@ $Error.Clear()
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
-$body = ("ClusterName: " + ($Cluster | ConvertTo-Html -Fragment))
+$body = ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
  
 
 #Get-ClusterNode
