@@ -32,17 +32,17 @@ $body = ("ClusterName: " + ($Cluster | ConvertTo-Html -Fragment))
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
-$body += ($ClusterNodes|ConvertTo-Html -Fragment)
+$body += ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
 
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
-$body += ($PhysicalDisks | ConvertTo-Html -Fragment)
+$body += ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
 
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
-$body += ($VirtualDisks | ConvertTo-Html -Fragment)
+$body += ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
 
 $html  = @'
 <!DOCTYPE html>
