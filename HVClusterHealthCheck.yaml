@@ -1,6 +1,6 @@
 ---
 - name: Hyper-V Cluster Health Check Report
-  hosts: Clusters
+  hosts: all
   gather_facts: false
   tasks:
     - name: Create temp file
