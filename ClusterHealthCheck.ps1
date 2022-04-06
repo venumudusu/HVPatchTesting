@@ -110,9 +110,16 @@ foreach($vm in $VMs)
 
 	$VMs_html += '</td></tr>'
 }
-$VMs_html += '</table>'
+$VMs_html += '</table><br><br>'
 
+#Get disks not in S2D pool
+$Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason}
 
+if($Disksnotinpool)
+{
+	$html += '<span class="label danger">Disks not in S2DPool</span>'
+	$html += '<span class="label danger">' + ($Disksnotinpool | Out-String) + '</span>'
+}
 
 ################Start html file #####################
 #####################################################
@@ -204,7 +211,7 @@ $html += @'
   <div class="footer">
     <p>Report generated at 
 '@
-$html += (Get-Date -Format "yyyy-MM-dd HH-mm-ss").ToString() + (Get-TimeZone).Id.ToString()
+$html += (Get-Date -Format "yyyy-MM-dd HH:mm:ss").ToString() + " " + (Get-TimeZone).Id.ToString()
 $html += @'
 	</p>
   </div>
