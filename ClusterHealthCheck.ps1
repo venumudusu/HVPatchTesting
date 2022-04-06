@@ -33,16 +33,58 @@ $body += ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
 $body += ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
+$ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
+
+foreach ($ClusterNode in $ClusterNodes)
+{
+	$ClusterNodes_html += '<tr><td>' + $ClusterNode.Id + '</td><td>' + $ClusterNode.Name + '</td><td>' 
+	if ($ClusterNode.State -eq "Up")
+	{
+		$ClusterNodes_html += '<span class="label success">Up</span>'
+	}
+	else
+	{
+		$ClusterNodes_html += '<span class="label danger">' + $ClusterNode.State + '</span>'
+	}
+	$ClusterNodes_html += '</td></tr>'
+	
+}
+$ClusterNodes_html += '</table><br><br>'
+
 
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
 $body += ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
 
+$PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
+foreach ($PhysicalDisk in $PhysicalDisks)
+{
+	$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>'
+	if ($PhysicalDisk.OperationalStatus -ne "OK") { $html += '<span class="label danger">' + $PhysicalDisk.OperationalStatus + '</span>' }
+	else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.OperationalStatus + '</span>' }
+	$PhysicalDisks_html += '</td><td>' + $PhysicalDisk.HealthStatus + '</td><tr>'
+	
+}
+
+$PhysicalDisks_html += '</table><br><br>'
+
+
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
 $body += ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
+
+$VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
+foreach ($VirtualDisk in $VirtualDisks)
+{
+	$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' + $VirtualDisk.OperationalStatus + '</td><td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
+}
+
+$VirtualDisks_html += '</table><br><br>'
+
+################Start html file #####################
+#####################################################
 
 $html  = @'
 <!DOCTYPE html>
@@ -99,24 +141,7 @@ $html += @'
     <tr>
       <td>
 '@
-$html += '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
-foreach ($ClusterNode in $ClusterNodes)
-{
-	$html += '<tr><td>' + $ClusterNode.Id + '</td><td>' + $ClusterNode.Name + '</td><td>' 
-	if ($ClusterNode.State -eq "Up")
-	{
-		$html += '<span class="label success">Up</span>'
-	}
-	else
-	{
-		$html += '<span class="label danger">' + $ClusterNode.State + '</span>'
-	}
-	$html += '</td></tr>'
-	
-}
-$html += '</table>'
-
-#$html += $ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment
+$html += $ClusterNodes_html
 $html += @'
 	</td>
       <td>
@@ -132,53 +157,26 @@ $html += @'
   </table>
 
   <br><br>
-	<table>
 '@
 
 #Physical Disks
-$html += '<tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
-foreach ($PhysicalDisk in $PhysicalDisks)
-{
-	$html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>'
-	if ($PhysicalDisk.OperationalStatus -ne "OK") { $html += '<span class="label danger">' + $PhysicalDisk.OperationalStatus + '</span>' }
-	else { $html += '<span class="label success">' + $PhysicalDisk.OperationalStatus + '</span>' }
-	$html += '</td><td>' + $PhysicalDisk.HealthStatus + '</td><tr>'
-	
-}
-
-$html += @'
-
-	</table>
-<br><br>
-
-<table>
-'@
+$html += $PhysicalDisks_html
 
 #Virtual Disks
-$html += '<tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
-foreach ($VirtualDisk in $VirtualDisks)
-{
-	$html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' + $VirtualDisk.OperationalStatus + '</td><td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
-}
+$html += $VirtualDisks_html
 
 $html += @'
-
-</table>
-
 <br><br><br><br>
-
-
   <div class="footer">
     <p>Report generated at 
 '@
-Get-Date -Format "yyyy-MM-dd HH-mm-ss"
+(Get-Date -Format "yyyy-MM-dd HH-mm-ss").ToString()
 $html += @'
 	</p>
   </div>
 </body>
 
 </html>
-
 '@
 
 $username = "admin@winadmin.org"
