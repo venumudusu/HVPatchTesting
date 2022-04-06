@@ -78,7 +78,15 @@ $body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalSt
 $VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
 foreach ($VirtualDisk in $VirtualDisks)
 {
-	$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' + $VirtualDisk.OperationalStatus + '</td><td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
+	$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' 
+	if($VirtualDisk.OperationalStatus -ne "OK")
+	{
+		$VirtualDisks_html += '<span class="label danger">' + $VirtualDisk.OperationalStatus + '</span>'
+	}
+	else{
+		$VirtualDisks_html += '<span class="label success">' + $VirtualDisk.OperationalStatus + '</span>'
+	}
+	$VirtualDisks_html +=  '</td><td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
 }
 
 $VirtualDisks_html += '</table><br><br>'
