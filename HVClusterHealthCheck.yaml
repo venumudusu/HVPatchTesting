@@ -11,6 +11,6 @@
       register: tempfile_1
 
     - name: Run PowerShell Script
-      script: ClusterHealthCheck.ps1
+      script: ClusterHealthCheck.ps1 -ClusterName "hvcls001.winadmin.local"
 
     
