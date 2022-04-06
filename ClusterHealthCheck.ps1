@@ -117,6 +117,7 @@ $Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason}
 
 if($Disksnotinpool)
 {
+	$body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | ConvertTo-Html -Fragment)
 	$html += '<span class="label danger">Disks not in S2DPool</span>'
 	$html += '<span class="label danger">' + ($Disksnotinpool | Out-String) + '</span>'
 }
