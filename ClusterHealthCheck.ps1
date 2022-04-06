@@ -204,7 +204,7 @@ $html += @'
   <div class="footer">
     <p>Report generated at 
 '@
-(Get-Date -Format "yyyy-MM-dd HH-mm-ss").ToString()
+$html += (Get-Date -Format "yyyy-MM-dd HH-mm-ss").ToString() + (Get-TimeZone).Id.ToString()
 $html += @'
 	</p>
   </div>
