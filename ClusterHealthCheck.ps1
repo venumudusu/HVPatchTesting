@@ -32,7 +32,7 @@ $body += ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
-$body += ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
+$body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
 $ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
 
 foreach ($ClusterNode in $ClusterNodes)
@@ -55,7 +55,7 @@ $ClusterNodes_html += '</table><br><br>'
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
-$body += ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
+$body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
 
 $PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
 foreach ($PhysicalDisk in $PhysicalDisks)
@@ -73,7 +73,7 @@ $PhysicalDisks_html += '</table><br><br>'
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
-$body += ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
+$body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
 
 $VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
 foreach ($VirtualDisk in $VirtualDisks)
@@ -82,6 +82,22 @@ foreach ($VirtualDisk in $VirtualDisks)
 }
 
 $VirtualDisks_html += '</table><br><br>'
+
+
+#Get-VM details
+$VMs = @()
+foreach($n in $ClusterNodes)
+{
+	$VMs += try { Get-VM -ComputerName $n.Name -ErrorAction Stop | Select-Object Name, Path, Uptime, Status, State } catch{}
+}
+$body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
+
+$VMs_html = '<table><tr><th>Name</th><th>Path</th><th>Uptime</th><th>Status</th><th></th>State</tr>'
+foreach($vm in $VMs)
+{
+	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.Path + '</td><td>' + $vm.Uptime + '</td><td>' + $vm.Status + '</td><td>' + $vm.State + '</td></tr>'
+}
+$VMs_html += '</table>'
 
 ################Start html file #####################
 #####################################################
