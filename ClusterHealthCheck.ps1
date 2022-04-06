@@ -26,23 +26,23 @@ $Error.Clear()
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
-$body = ("ClusterName: " + ($Cluster | Out-String))
+$body = ("ClusterName: " + ($Cluster | ConvertTo-Html -Fragment))
  
 
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
-$body += ($ClusterNodes|Out-String)
+$body += ($ClusterNodes|ConvertTo-Html -Fragment)
 
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
-$body += ($PhysicalDisks | Out-String)
+$body += ($PhysicalDisks | ConvertTo-Html -Fragment)
 
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
-$body += ($VirtualDisks | Out-String)
+$body += ($VirtualDisks | ConvertTo-Html -Fragment)
 
 $html  = @'
 <!DOCTYPE html>
@@ -191,4 +191,4 @@ $body | Out-File body.txt
 
 Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $body -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
 # Create the message
-Remove-Item test.html -Force
+Remove-Item HealthCheckReport.html -Force
