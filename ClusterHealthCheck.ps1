@@ -85,19 +85,17 @@ $VirtualDisks_html += '</table><br><br>'
 
 
 #Get-VM details
-$VMs = @()
-foreach($n in $ClusterNodes)
-{
-	$VMs += try { Get-VM -ComputerName $n.Name -ErrorAction Stop | Select-Object Name, Path, Uptime, Status, State } catch{}
-}
+$VMs = Get-ClusterGroup | Where-Object {$_.GroupType -eq "VirtualMachine"} | Select-Object Name, OwnerNode, State
 $body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
 
-$VMs_html = '<table><tr><th>Name</th><th>Path</th><th>Uptime</th><th>Status</th><th></th>State</tr>'
+$VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
 foreach($vm in $VMs)
 {
-	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.Path + '</td><td>' + $vm.Uptime + '</td><td>' + $vm.Status + '</td><td>' + $vm.State + '</td></tr>'
+	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td><td>' + $vm.State + '</td></tr>'
 }
 $VMs_html += '</table>'
+
+
 
 ################Start html file #####################
 #####################################################
