@@ -17,29 +17,32 @@ param
 	[String]$ClusterName
 )
 
+$body = ""
+$html = ""
+
 #Clear errors if any
 $Error.Clear()
 
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
-Write-Host ("ClusterName: " + ($Cluster | Out-String))
-
+$body = ("ClusterName: " + ($Cluster | Out-String))
+ 
 
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
-Write-Host ($ClusterNodes|Out-String)
+$body += ($ClusterNodes|Out-String)
 
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
-Write-Host ($PhysicalDisks | Out-String)
+$body += ($PhysicalDisks | Out-String)
 
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
-Write-Host ($VirtualDisks | Out-String)
+$body += ($VirtualDisks | Out-String)
 
 $html  = @'
 <!DOCTYPE html>
@@ -183,7 +186,9 @@ $password = "creMa6u7!"
 [SecureString]$secureString = $password | ConvertTo-SecureString -AsPlainText -Force
 [PSCredential]$secureCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $secureString
 
-$html | Out-File test.html
-Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $html -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments test.html
+$html | Out-File HealthCheckReport.html
+$body | Out-File body.txt
+
+Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $body -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
 # Create the message
 Remove-Item test.html -Force
