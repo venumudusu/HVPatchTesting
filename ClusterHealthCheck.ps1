@@ -27,7 +27,7 @@ $Error.Clear()
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
 $body = ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
- 
+
 
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
@@ -188,6 +188,7 @@ $password = "creMa6u7!"
 
 $html | Out-File HealthCheckReport.html
 $body | Out-File body.txt
+Write-Host $body
 
 Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $body -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
 # Create the message
