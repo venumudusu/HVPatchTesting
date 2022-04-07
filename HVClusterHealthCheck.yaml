@@ -43,3 +43,4 @@
         subtype: html
         body: "{{ data }}"
       delegate_to: localhost
+      
