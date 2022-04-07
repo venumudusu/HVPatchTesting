@@ -28,5 +28,5 @@
         from: admin@winadmin.org
         subject: Hyper-V CLuster Health Check Report
         subtype: html
-        body: {{ htmlcontent }}
+        body: "{{ htmlcontent.stdout }}"
         
