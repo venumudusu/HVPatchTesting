@@ -13,25 +13,33 @@
       script: ClusterHealthCheck.ps1 -htmlfile {{ tempfile_1.path }}
 
     - name: Fetch output from Cluster
-      fetch:
+      #fetch:
+      #  src: "{{ tempfile_1.path }}"
+      #  dest: /tmp/logs
+      slurp:
         src: "{{ tempfile_1.path }}"
-        dest: /tmp/logs
-      register: htmlfile
+      register: slurped_data
+      #register: htmlfile
+
+    - name: Decode data
+      set_fact:
+        data: "{{ slurped_data.content | b64decode }}"
+      delegate_to: localhost
 
     - name: read file
       shell: cat "{{ htmlfile.dest }}"
       register: htmlcontent
       delegate_to: localhost
 
-    - name: Send mail
-      mail:
-        host: mail.winadmin.org
-        port: 587
-        username: admin@winadmin.org
-        password: creMa6u7!
-        to: vg@live.in
-        from: admin@winadmin.org
-        subject: Hyper-V CLuster Health Check Report
-        subtype: html
-        body: "{{ htmlcontent }}"
-      delegate_to: localhost
+    #- name: Send mail
+    #  mail:
+    #    host: mail.winadmin.org
+    #    port: 587
+    #    username: admin@winadmin.org
+    #    password: creMa6u7!
+    #    to: vg@live.in
+    #    from: admin@winadmin.org
+    #    subject: Hyper-V CLuster Health Check Report
+    #    subtype: html
+    #    body: "{{ htmlcontent }}"
+    #  delegate_to: localhost
