@@ -222,10 +222,10 @@ $html += @'
 </html>
 '@
 
-$username = "admin@winadmin.org"
-$password = "creMa6u7!"
-[SecureString]$secureString = $password | ConvertTo-SecureString -AsPlainText -Force
-[PSCredential]$secureCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $secureString
+#$username = "admin@winadmin.org"
+#$password = "creMa6u7!"
+#[SecureString]$secureString = $password | ConvertTo-SecureString -AsPlainText -Force
+#[PSCredential]$secureCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $secureString
 
 $html | Out-File $htmlfile
 $body | Out-File body.txt

@@ -6,15 +6,16 @@
     - name: Create temp file
       win_tempfile:
         state: file
-        suffix: temp
-
+        suffix: html
       register: tempfile_1
 
     - name: Run PowerShell Script
       script: ClusterHealthCheck.ps1 -ClusterName {{ servers }} -htmlfile {{ tempfile_1.path }}
 
-    - name: Read files
-      vars:
+    - name: Fetch output from Cluster
+      fetch:
+        src: "{{ tempfile_1.path }}"
+        dest: /tmp/logs
         htmlcontent: "{{ lookup('file','{{ tempfile_1.path }}') }}"
 
     - name: Send mail
