@@ -23,13 +23,13 @@
 
     - name: Decode data
       set_fact:
-        data: "{{ slurped_data.content }}"
-      delegate_to: localhost
+        data: "{{ slurped_data.content | b64decode }}"
+#      delegate_to: localhost
 
-    - name: read file
-      shell: cat "{{ htmlfile.dest }}"
-      register: htmlcontent
-      delegate_to: localhost
+#    - name: read file
+#      shell: cat "{{ htmlfile.dest }}"
+#      register: htmlcontent
+#      delegate_to: localhost
 
     #- name: Send mail
     #  mail:
