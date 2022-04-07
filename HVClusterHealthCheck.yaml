@@ -34,7 +34,7 @@
     - name: Send mail
       mail:
         host: mail.winadmin.org
-        port: 587
+        port: 465
         username: admin@winadmin.org
         password: creMa6u7!
         to: vg@live.in
