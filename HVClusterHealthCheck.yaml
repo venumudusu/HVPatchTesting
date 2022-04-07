@@ -21,6 +21,7 @@
     - name: read file
       shell: cat "{{ htmlfile.dest }}"
       register: htmlcontent
+      delegate_to: localhost
 
     - name: Send mail
       mail:
@@ -33,4 +34,4 @@
         subject: Hyper-V CLuster Health Check Report
         subtype: html
         body: "{{ htmlcontent }}"
-        
+      delegate_to: localhost
