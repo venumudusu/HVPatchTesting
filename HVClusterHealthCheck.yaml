@@ -16,7 +16,6 @@
       fetch:
         src: "{{ tempfile_1.path }}"
         dest: /tmp/logs
-        htmlcontent: "{{ lookup('file','{{ tempfile_1.path }}') }}"
 
     - name: Send mail
       mail:
