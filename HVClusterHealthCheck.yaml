@@ -11,6 +11,21 @@
       register: tempfile_1
 
     - name: Run PowerShell Script
-      script: ClusterHealthCheck.ps1 -ClusterName "hvcls001.winadmin.local"
+      script: ClusterHealthCheck.ps1 -ClusterName {{ servers }} -htmlfile {{ tempfile_1.path }}
 
-    
+    - name: Read files
+      vars:
+        htmlcontent: "{{ lookup('file','{{ tempfile_1.path }}') }}"
+
+    - name: Send mail
+      mail:
+        host: mail.winadmin.org
+        port: 587
+        username: admin@winadmin.org
+        password: creMa6u7!
+        to: vg@live.in
+        from: admin@winadmin.org
+        subject: Hyper-V CLuster Health Check Report
+        subtype: html
+        body: {{ htmlcontent }}
+        

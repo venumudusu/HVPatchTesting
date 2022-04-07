@@ -14,7 +14,8 @@
 param
 (
 	[parameter(Mandatory = $true)]
-	[String]$ClusterName
+	[String]$ClusterName,
+	[String]$htmlfile
 )
 
 $body = ""
@@ -113,7 +114,7 @@ foreach($vm in $VMs)
 $VMs_html += '</table><br><br>'
 
 #Get disks not in S2D pool
-$Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason}
+$Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason -ne "In a Pool"}
 
 if($Disksnotinpool)
 {
@@ -226,10 +227,11 @@ $password = "creMa6u7!"
 [SecureString]$secureString = $password | ConvertTo-SecureString -AsPlainText -Force
 [PSCredential]$secureCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $secureString
 
-$html | Out-File HealthCheckReport.html
+$html | Out-File $htmlfile
 $body | Out-File body.txt
 Write-Host $body
 
-Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $($body) -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
+#Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $($body) -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
 # Create the message
-Remove-Item HealthCheckReport.html -Force
+#Remove-Item HealthCheckReport.html -Force
+#Remove-Item body.txt
