@@ -31,15 +31,15 @@
 #      register: htmlcontent
 #      delegate_to: localhost
 
-    #- name: Send mail
-    #  mail:
-    #    host: mail.winadmin.org
-    #    port: 587
-    #    username: admin@winadmin.org
-    #    password: creMa6u7!
-    #    to: vg@live.in
-    #    from: admin@winadmin.org
-    #    subject: Hyper-V CLuster Health Check Report
-    #    subtype: html
-    #    body: "{{ htmlcontent }}"
-    #  delegate_to: localhost
+    - name: Send mail
+      mail:
+        host: mail.winadmin.org
+        port: 587
+        username: admin@winadmin.org
+        password: creMa6u7!
+        to: vg@live.in
+        from: admin@winadmin.org
+        subject: Hyper-V CLuster Health Check Report
+        subtype: html
+        body: "{{ htmlcontent }}"
+      delegate_to: localhost
