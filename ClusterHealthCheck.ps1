@@ -13,8 +13,6 @@
 
 param
 (
-	[parameter(Mandatory = $true)]
-	[String]$ClusterName,
 	[String]$htmlfile
 )
 

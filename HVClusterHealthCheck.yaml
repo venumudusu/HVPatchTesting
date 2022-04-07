@@ -10,7 +10,7 @@
       register: tempfile_1
 
     - name: Run PowerShell Script
-      script: ClusterHealthCheck.ps1 -ClusterName {{ servers }} -htmlfile {{ tempfile_1.path }}
+      script: ClusterHealthCheck.ps1 -htmlfile {{ tempfile_1.path }}
 
     - name: Fetch output from Cluster
       fetch:
