@@ -23,7 +23,7 @@
 
     - name: Decode data
       set_fact:
-        data: "{{ slurped_data['content'] | b64decode(encoding='utf-16-le') }}"
+        data: "{{ slurped_data['content'] | b64decode(encoding='utf-16') }}"
       delegate_to: localhost
 
 #    - name: read file
