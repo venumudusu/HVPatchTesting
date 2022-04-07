@@ -16,6 +16,11 @@
       fetch:
         src: "{{ tempfile_1.path }}"
         dest: /tmp/logs
+      register: htmlfile
+
+    - name: read file
+      shell: cat "{{ htmlfile.dest }}"
+      register: htmlcontent
 
     - name: Send mail
       mail:
@@ -27,5 +32,5 @@
         from: admin@winadmin.org
         subject: Hyper-V CLuster Health Check Report
         subtype: html
-        body: "{{ htmlcontent.stdout }}"
+        body: "{{ htmlcontent }}"
         
