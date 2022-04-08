@@ -33,12 +33,12 @@
 
     - name: Send mail
       mail:
-        host: a2plcpnl0746.prod.iad2.secureserver.net
+        host: dc01.winadmin.local
         port: 465
-        username: admin@winadmin.org
-        password: creMa6u7!
-        to: vg@live.in
-        from: admin@winadmin.org
+        username: wintel@winadmin.local
+        password: P@ssw0rd
+        to: venu@winadmin.local
+        from: wintel@winadmin.local
         subject: Hyper-V CLuster Health Check Report
         subtype: html
         body: "{{ data }}"
