@@ -34,7 +34,7 @@
 
     - name: Fetch mail_body
       slurp:
-        src: "{{ temp_file_2.path }}"
+        src: "{{ tempfile_2.path }}"
       register: data2
 
     - name: Decode data
