@@ -50,6 +50,26 @@ foreach ($ClusterNode in $ClusterNodes)
 }
 $ClusterNodes_html += '</table><br><br>'
 
+foreach ($ClusterNode in $ClusterNodes)
+{
+	if ($ClusterNode.State -eq "Up")
+	{
+		$ClusterNodes_image_html += '<?xml version="1.0" encoding="utf-8"?>
+		<svg viewBox="0 0 490 490" xmlns="http://www.w3.org/2000/svg">
+		  <path d="m445,460h-24.998v-445c0-8.284-6.716-15-15-15h-320.002c-8.284,0-15,6.716-15,15v445h-25c-8.284,0-15,6.716-15,15s6.716,15 15,15h400c8.284,0 15-6.716 15-15s-6.716-15-15-15zm-54.998,0h-290.002v-430h290.002v430zm-245-160h199.998c8.284,0 15-6.716 15-15v-210c0-8.284-6.716-15-15-15h-199.998c-8.284,0-15,6.716-15,15v210c0,8.284 6.716,15 15,15zm15-210h169.998v40h-169.998v-40zm0,70h169.998v40h-169.998v-40zm0,70h169.998v40h-169.998v-40zm84.998,107.497c-24.813,0-44.999,20.188-44.999,45.004 0,24.813 20.188,45.001 45.001,45.001 24.813,0 44.999-20.188 44.999-45.004-5.68434e-14-24.813-20.188-45.001-45.001-45.001zm0,60.005c-8.271,0-14.999-6.729-14.999-15.004 0-8.271 6.729-15.001 14.999-15.001h0.002c8.271,0 14.999,6.729 14.999,15.004-5.68434e-14,8.271-6.73,15.001-15.001,15.001z" style="fill: rgb(0, 255, 0);"/>
+		</svg>'
+	}
+	else
+	{
+		$ClusterNodes_image_html += '<?xml version="1.0" encoding="utf-8"?>
+		<svg viewBox="0 0 490 490" xmlns="http://www.w3.org/2000/svg">
+		  <path d="m445,460h-24.998v-445c0-8.284-6.716-15-15-15h-320.002c-8.284,0-15,6.716-15,15v445h-25c-8.284,0-15,6.716-15,15s6.716,15 15,15h400c8.284,0 15-6.716 15-15s-6.716-15-15-15zm-54.998,0h-290.002v-430h290.002v430zm-245-160h199.998c8.284,0 15-6.716 15-15v-210c0-8.284-6.716-15-15-15h-199.998c-8.284,0-15,6.716-15,15v210c0,8.284 6.716,15 15,15zm15-210h169.998v40h-169.998v-40zm0,70h169.998v40h-169.998v-40zm0,70h169.998v40h-169.998v-40zm84.998,107.497c-24.813,0-44.999,20.188-44.999,45.004 0,24.813 20.188,45.001 45.001,45.001 24.813,0 44.999-20.188 44.999-45.004-5.68434e-14-24.813-20.188-45.001-45.001-45.001zm0,60.005c-8.271,0-14.999-6.729-14.999-15.004 0-8.271 6.729-15.001 14.999-15.001h0.002c8.271,0 14.999,6.729 14.999,15.004-5.68434e-14,8.271-6.73,15.001-15.001,15.001z" style="fill: rgb(255, 0, 0);"/>
+		</svg>'
+	}
+	$ClusterNodes_image_html += '&nbsp;&nbsp;'
+	
+}
+
 
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
@@ -59,11 +79,9 @@ $body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufa
 $PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
 foreach ($PhysicalDisk in $PhysicalDisks)
 {
-	$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>'
-	if ($PhysicalDisk.OperationalStatus -ne "OK") { $html += '<span class="label danger">' + $PhysicalDisk.OperationalStatus + '</span>' }
-	else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.OperationalStatus + '</span>' }
-	$PhysicalDisks_html += '</td><td>' + $PhysicalDisk.HealthStatus + '</td><tr>'
-	
+	$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td><td>'
+	if ($PhysicalDisk.HealthStatus -ne "Healthy") { $html += '<span class="label danger">' + $PhysicalDisk.HealthStatus + '</span>' }
+	else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.HealthStatus + '</span>' + '</td><tr>' }	
 }
 
 $PhysicalDisks_html += '</table><br><br>'
@@ -99,7 +117,7 @@ $VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
 foreach($vm in $VMs)
 {
 	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td><td>' 
-	if($vm.State -eq "Running")
+	if($vm.State -eq "Online")
 	{
 		$VMs_html += '<span class="label success">' + $vm.State + '</span>'
 	}
@@ -184,11 +202,11 @@ $html += @'
 	</td>
       <td>
 		  <div class="perfgraph">
-		    <svg height="200" width="200" viewBox="0 0 20 20">
-		      <circle r="10" cx="10" cy="10" fill="Green" />
-		      <circle r="5" cx="10" cy="10" fill="transparent" stroke="red" stroke-width="10"
-		        stroke-dasharray="calc(25 * 31.4 / 100) 31.4" transform="rotate(-90) translate(-20)" />
-		    </svg>
+'@
+
+$html += $ClusterNodes_image_html
+
+$html += @'
 		  </div>
 	  </td>
     </tr>
