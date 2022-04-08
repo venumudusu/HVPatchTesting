@@ -10,13 +10,13 @@
 		Checks Cluster Health and sends html report to email
 #>
 
-
 param
 (
-	[String]$htmlfile
+	[String]$htmlfile,
+	[String]$mailbody
 )
 
-$body = ""
+$mail_body = "<style> .success2 { font: italic bold; color: green; } .error2 { font: italic bold; color: red; } </style>"
 $html = ""
 
 #Clear errors if any
@@ -25,13 +25,12 @@ $Error.Clear()
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
-$body += ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
-
+$mail_body += ($Cluster | Select-Object Name, Domain | Out-String)
 
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
-$body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
+$mail_body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | Out-String)
 $ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
 
 foreach ($ClusterNode in $ClusterNodes)
@@ -43,7 +42,7 @@ foreach ($ClusterNode in $ClusterNodes)
 	}
 	else
 	{
-		$ClusterNodes_html += '<span class="label danger">' + $ClusterNode.State + '</span>'
+		$ClusterNodes_html += '<span class="label error">' + $ClusterNode.State + '</span>'
 	}
 	$ClusterNodes_html += '</td></tr>'
 	
@@ -76,13 +75,13 @@ foreach ($ClusterNode in $ClusterNodes)
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
-$body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
+$mail_body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | Out-String)
 
 $PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
 foreach ($PhysicalDisk in $PhysicalDisks)
 {
 	$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td><td>'
-	if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<span class="label danger">' + $PhysicalDisk.HealthStatus + '</span>' }
+	if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<span class="label error">' + $PhysicalDisk.HealthStatus + '</span>' }
 	else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.HealthStatus + '</span>' }
 	$PhysicalDisks_html += '</td><tr>'
 }
@@ -93,7 +92,7 @@ $PhysicalDisks_html += '</table><br><br>'
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
-$body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
+$mail_body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | Out-String)
 
 $VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
 foreach ($VirtualDisk in $VirtualDisks)
@@ -101,7 +100,7 @@ foreach ($VirtualDisk in $VirtualDisks)
 	$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' 
 	if($VirtualDisk.OperationalStatus -ne "OK")
 	{
-		$VirtualDisks_html += '<span class="label danger">' + $VirtualDisk.OperationalStatus + '</span>'
+		$VirtualDisks_html += '<span class="label error">' + $VirtualDisk.OperationalStatus + '</span>'
 	}
 	else{
 		$VirtualDisks_html += '<span class="label success">' + $VirtualDisk.OperationalStatus + '</span>'
@@ -114,7 +113,7 @@ $VirtualDisks_html += '</table><br><br>'
 
 #Get-VM details
 $VMs = Get-ClusterGroup | Where-Object {$_.GroupType -eq "VirtualMachine"} | Select-Object Name, OwnerNode, State
-$body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
+$mail_body += '<br><br>' + ($VMs | Out-String)
 
 $VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
 foreach($vm in $VMs)
@@ -125,7 +124,7 @@ foreach($vm in $VMs)
 		$VMs_html += '<span class="label success">' + $vm.State + '</span>'
 	}
 	else {
-		$VMs_html += '<span class="label danger">' + $vm.State + '</span>'
+		$VMs_html += '<span class="label error">' + $vm.State + '</span>'
 	}
 
 	$VMs_html += '</td></tr>'
@@ -137,9 +136,9 @@ $Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason -ne "In a P
 
 if($Disksnotinpool)
 {
-	$body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | ConvertTo-Html -Fragment)
-	$html += '<span class="label danger">Disks not in S2DPool</span>'
-	$html += '<span class="label danger">' + ($Disksnotinpool | Out-String) + '</span>'
+	$mail_body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | Out-String)
+	$html += '<span class="label error">Disks not in S2DPool</span>'
+	$html += '<span class="label error">' + ($Disksnotinpool | Out-String) + '</span>'
 }
 
 ################Start html file #####################
@@ -171,17 +170,8 @@ $html += @'
 	.label { color: white;padding: 5px; }
 	.success { background-color: #4CAF50;border-radius: 0.5em; }
 	.warning { background-color: #ff9800;border-radius: 0.5em; }
-	.danger { background-color: #f44336;border-radius: 0.5em; }
-	.tooltip .tooltiptext { visibility: hidden;width: 120px;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;z-index: 1;}
-	.tooltip:hover .tooltiptext { visibility: visible;}
+	.error { background-color: #f44336;border-radius: 0.5em; }
 	.footer { position: fixed;left: 0;bottom: 0;width: 100%;background-color: black;color: white;text-align: center;}
-	.graph .labels.x-labels { text-anchor: middle; }
-	.graph .labels.y-labels { text-anchor: end; }
-	.graph { height: 500px;width: 800px; }
-	.graph .grid { stroke: #ccc;stroke-dasharray: 0;stroke-width: 1; }
-	.labels { font-size: 13px; }
-	.label-title { font-weight: bold;font-size: 12px;fill: black; }
-	.label-title-x { writing-mode: vertical-lr;text-orientation: upright; }
 	div.perfgraph { width: 80%;margin-left: auto;margin-right: auto; }
   </style>
 </head>
@@ -247,10 +237,10 @@ $html += @'
 #[PSCredential]$secureCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $secureString
 
 $html | Out-File $htmlfile
-$body | Out-File body.txt
-Write-Host $body
+$mail_body | Out-File $mailbody
+Write-Host (Get-Content $mailbody)
 
-#Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $($body) -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
+#Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $($mail_body) -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
 # Create the message
 #Remove-Item HealthCheckReport.html -Force
 #Remove-Item body.txt
