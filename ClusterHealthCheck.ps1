@@ -82,7 +82,7 @@ $PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufa
 foreach ($PhysicalDisk in $PhysicalDisks)
 {
 	$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td><td>'
-	if ($PhysicalDisk.HealthStatus -ne "Healthy") { $html += '<span class="label danger">' + $PhysicalDisk.HealthStatus + '</span>' }
+	if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<span class="label danger">' + $PhysicalDisk.HealthStatus + '</span>' }
 	else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.HealthStatus + '</span>' }
 	$PhysicalDisks_html += '</td><tr>'
 }
