@@ -13,7 +13,7 @@
       win_tempfile:
         state: file
         suffix: body
-      register: rempfile_2
+      register: tempfile_2
 
     - name: Run PowerShell Script
       script: ClusterHealthCheck.ps1 -htmlfile {{ tempfile_1.path }} -mailbody {{ tempfile_2.path }}
