@@ -25,12 +25,12 @@ $Error.Clear()
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
-$mail_body += ($Cluster | Select-Object Name, Domain | Out-String -Stream)
+$mail_body += ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
 
 #Get-ClusterNode
 $ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
 catch { }
-$mail_body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | Out-String -Stream)
+$mail_body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
 $ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
 
 foreach ($ClusterNode in $ClusterNodes)
@@ -75,7 +75,7 @@ foreach ($ClusterNode in $ClusterNodes)
 #PhysicalDisk
 $PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
 catch { }
-$mail_body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | Out-String -Stream)
+$mail_body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
 
 $PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
 foreach ($PhysicalDisk in $PhysicalDisks)
@@ -92,7 +92,7 @@ $PhysicalDisks_html += '</table><br><br>'
 #VirtualDisks
 $VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
 catch { }
-$mail_body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | Out-String -Stream)
+$mail_body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
 
 $VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
 foreach ($VirtualDisk in $VirtualDisks)
@@ -113,7 +113,7 @@ $VirtualDisks_html += '</table><br><br>'
 
 #Get-VM details
 $VMs = Get-ClusterGroup | Where-Object {$_.GroupType -eq "VirtualMachine"} | Select-Object Name, OwnerNode, State
-$mail_body += '<br><br>' + ($VMs | Out-String  -Stream)
+$mail_body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
 
 $VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
 foreach($vm in $VMs)
@@ -136,7 +136,7 @@ $Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason -ne "In a P
 
 if($Disksnotinpool)
 {
-	$mail_body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | Out-String  -Stream)
+	$mail_body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | ConvertTo-Html -Fragment)
 	$html += '<span class="label error">Disks not in S2DPool</span>'
 	$html += '<span class="label error">' + ($Disksnotinpool | Out-String) + '</span>'
 }
