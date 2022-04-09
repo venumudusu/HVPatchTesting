@@ -219,7 +219,7 @@ $html += @'
 	.label { color: white;padding: 5px; }
 	.success { background-color: #4CAF50;border-radius: 0.5em; }
 	.warning { background-color: #ff9800;border-radius: 0.5em; }
-	.error { background-color: #f44336;border-radius: 0.5em; }
+	.error { bgcolor: #f44336;border-radius: 0.5em; }
 	.footer { position: fixed;left: 0;bottom: 0;width: 100%;background-color: black;color: white;text-align: center;}
 	div.perfgraph { width: 80%;margin-left: auto;margin-right: auto; }
   </style>
