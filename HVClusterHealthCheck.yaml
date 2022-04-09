@@ -58,5 +58,6 @@
         subject: Hyper-V CLuster Health Check Report
         subtype: html
         body: "{{ data2 }}"
+        attach: "{{ data1 }}"
       delegate_to: localhost
       
