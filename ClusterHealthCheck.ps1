@@ -12,8 +12,7 @@
 
 param
 (
-	[String]$htmlfile,
-	[String]$mailbody
+	[String]$htmlfile
 )
 
 $mail_body = "<style> .success2 { font: italic bold; color: #4CAF50; } .error2 { font: italic bold; color: #f44336; } </style>"
@@ -25,11 +24,10 @@ $Error.Clear()
 #Get Cluster Name
 $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
-$mail_body += ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
 
 if($Error)
 {
-	$mail_body += $Error[0].ToString()
+	$html += $Error[0].ToString()
 }
 else 
 {
@@ -41,12 +39,9 @@ else
 	if($Error)
 	{
 		$ClusterNodes_html += $Error[0].ToString()
-		$mail_body += $Error[0].ToString()
 	}
 	else 
 	{
-		$mail_body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
-
 		$ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
 
 		foreach ($ClusterNode in $ClusterNodes)
@@ -95,12 +90,9 @@ else
 	if($Error)
 	{
 		$PhysicalDisks_html += $Error[0].ToString()
-		$mail_body += $Error[0].ToString()
 	}
 	else 
 	{
-		$mail_body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
-
 		$PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
 		foreach ($PhysicalDisk in $PhysicalDisks)
 		{
@@ -122,12 +114,9 @@ else
 	if($Error)
 	{
 		$VirtualDisks_html = $Error[0].ToString()
-		$mail_body += $Error[0].ToString()
 	}
 	else 
 	{
-		$mail_body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
-
 		$VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
 		foreach ($VirtualDisk in $VirtualDisks)
 		{
@@ -153,12 +142,9 @@ else
 	if($Error)
 	{
 		$VMs_html = $Error[0].ToString()
-		$mail_body += $Error[0].ToString()
 	}
 	else
 	{
-		$mail_body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
-
 		$VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
 		foreach($vm in $VMs)
 		{
@@ -182,9 +168,12 @@ else
 
 	if($Disksnotinpool)
 	{
-		$mail_body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | ConvertTo-Html -Fragment)
-		$html += '<span class="label error">Disks not in S2DPool</span>'
-		$html += '<span class="label error">' + ($Disksnotinpool | Out-String) + '</span>'
+		$dnp = '<table><tr><td colspan="2" bgcolor="#f44336">Disks not in S2DPool</td></tr>'
+		foreach($d in $Disksnotinpool)
+		{
+			$dnp += '<tr><td>' + $d.DeviceId + '</td><td bgcolor="red">' + $d.CannotPoolReason + '</td></tr>'
+		}
+		$dnp += '</table>'		
 	}
 }
 
@@ -266,6 +255,9 @@ $html += $VirtualDisks_html
 #Virtual machines
 $html += $VMs_html
 
+#Disks not in S2D pool
+$html += $dnp
+
 $html += @'
 <br><br><br><br>
   <div class="footer">
@@ -281,5 +273,3 @@ $html += @'
 '@
 
 $html | Out-File $htmlfile
-#$mail_body | Out-File $mailbody
-$html | Out-File $mailbody

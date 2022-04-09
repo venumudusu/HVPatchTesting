@@ -9,12 +9,6 @@
         suffix: .html
       register: tempfile_1
 
-    - name: Create temp file 2
-      win_tempfile:
-        state: file
-        suffix: body
-      register: tempfile_2
-
     - name: Run PowerShell Script
       script: ClusterHealthCheck.ps1 -htmlfile {{ tempfile_1.path }} -mailbody {{ tempfile_2.path }}
 
@@ -26,8 +20,8 @@
 
     - name: Fetch mail_body
       slurp:
-        src: "{{ tempfile_2.path }}"
-      register: data2
+        src: "{{ tempfile_1.path }}"
+      register: data1
 
     - name: Send mail
       mail:
@@ -39,7 +33,7 @@
         from: wintel@winadmin.local
         subject: Hyper-V CLuster Health Check Report
         subtype: html
-        body: "{{ data2['content'] | b64decode(encoding='utf-16') }}"
+        body: "{{ data1['content'] | b64decode(encoding='utf-16') }}"
         attach: "{{ htmlfile.dest }}"
       delegate_to: localhost
       
