@@ -96,7 +96,7 @@ else
 			$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td>'
 			if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<td bgcolor="#f44336"><span class="label error">' + $PhysicalDisk.HealthStatus + '</span></td>' }
 			else { $PhysicalDisks_html += '<td bgcolor="#4CAF50"><span class="label success">' + $PhysicalDisk.HealthStatus + '</span></td>' }
-			$PhysicalDisks_html += '<tr>'
+			$PhysicalDisks_html += '</tr>'
 		}
 
 		$PhysicalDisks_html += '</table><br><br>'
