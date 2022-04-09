@@ -27,119 +27,168 @@ $Cluster = try { Get-Cluster -ErrorAction Stop }
 catch { $_.Exception.Message }
 $mail_body += ($Cluster | Select-Object Name, Domain | ConvertTo-Html -Fragment)
 
-#Get-ClusterNode
-$ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
-catch { }
-$mail_body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
-$ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
-
-foreach ($ClusterNode in $ClusterNodes)
+if($Error)
 {
-	$ClusterNodes_html += '<tr><td>' + $ClusterNode.Id + '</td><td>' + $ClusterNode.Name + '</td><td>' 
-	if ($ClusterNode.State -eq "Up")
+	$mail_body += $Error[0].ToString()
+}
+else 
+{
+	#Get-ClusterNode
+	$Error.Clear()
+	$ClusterNodes = try { Get-ClusterNode -ErrorAction Stop }
+	catch { }
+
+	if($Error)
 	{
-		$ClusterNodes_html += '<span class="label success">Up</span>'
+		$ClusterNodes_html += $Error[0].ToString()
+		$mail_body += $Error[0].ToString()
+	}
+	else 
+	{
+		$mail_body += '<br><br>' + ($ClusterNodes | Select-Object Id, Name, State | ConvertTo-Html -Fragment)
+
+		$ClusterNodes_html = '<table><tr><td>Id</td><td>Name</td><td>State</td></tr>'
+
+		foreach ($ClusterNode in $ClusterNodes)
+		{
+			$ClusterNodes_html += '<tr><td>' + $ClusterNode.Id + '</td><td>' + $ClusterNode.Name + '</td><td>' 
+			if ($ClusterNode.State -eq "Up")
+			{
+				$ClusterNodes_html += '<span class="label success">Up</span>'
+			}
+			else
+			{
+				$ClusterNodes_html += '<span class="label error">' + $ClusterNode.State + '</span>'
+			}
+			$ClusterNodes_html += '</td></tr>'
+			
+		}
+		$ClusterNodes_html += '</table><br><br>'
+
+		foreach ($ClusterNode in $ClusterNodes)
+		{
+			if ($ClusterNode.State -eq "Up")
+			{
+				$ClusterNodes_image_html += '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="body_1" width="51" height="38">
+				<g transform="matrix(0.07755102 0 0 0.07755102 6.500001 -0)">
+					<path d="M445 460L420.002 460L420.002 15C 420.002 6.7159996 413.286 0 405.002 0L405.002 0L85 0C 76.716 0 70 6.716 70 15L70 15L70 460L45 460C 36.716 460 30 466.716 30 475C 30 483.284 36.716 490 45 490L45 490L445 490C 453.284 490 460 483.284 460 475C 460 466.716 453.284 460 445 460zM390.002 460L100 460L100 30L390.002 30L390.002 460zM145.00201 300L345 300C 353.284 300 360 293.284 360 285L360 285L360 75C 360 66.716 353.284 60 345 60L345 60L145.002 60C 136.718 60 130.002 66.716 130.002 75L130.002 75L130.002 285C 130.002 293.284 136.718 300 145.002 300zM160.00201 90L330 90L330 130L160.002 130L160.002 90zM160.00201 160L330 160L330 200L160.002 200L160.002 160zM160.00201 230L330 230L330 270L160.002 270L160.002 230zM245.00002 337.497C 220.18701 337.497 200.001 357.685 200.001 382.501C 200.001 407.314 220.18901 427.502 245.00201 427.502C 269.815 427.502 290.001 407.31403 290.001 382.49802C 290.001 357.68503 269.81302 337.497 245 337.497zM245.00002 397.502C 236.72902 397.502 230.00102 390.773 230.00102 382.49802C 230.00102 374.22702 236.73003 367.497 245.00002 367.497L245.00002 367.497L245.00201 367.497C 253.27301 367.497 260.001 374.226 260.001 382.501C 260.001 390.772 253.27101 397.502 245 397.502z" stroke="none" fill="#00FF00" fill-rule="nonzero" />
+				</g>
+				</svg>'
+			}
+			else
+			{
+				$ClusterNodes_image_html += '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="body_1" width="51" height="38">
+				<g transform="matrix(0.07755102 0 0 0.07755102 6.500001 -0)">
+					<path d="M445 460L420.002 460L420.002 15C 420.002 6.7159996 413.286 0 405.002 0L405.002 0L85 0C 76.716 0 70 6.716 70 15L70 15L70 460L45 460C 36.716 460 30 466.716 30 475C 30 483.284 36.716 490 45 490L45 490L445 490C 453.284 490 460 483.284 460 475C 460 466.716 453.284 460 445 460zM390.002 460L100 460L100 30L390.002 30L390.002 460zM145.00201 300L345 300C 353.284 300 360 293.284 360 285L360 285L360 75C 360 66.716 353.284 60 345 60L345 60L145.002 60C 136.718 60 130.002 66.716 130.002 75L130.002 75L130.002 285C 130.002 293.284 136.718 300 145.002 300zM160.00201 90L330 90L330 130L160.002 130L160.002 90zM160.00201 160L330 160L330 200L160.002 200L160.002 160zM160.00201 230L330 230L330 270L160.002 270L160.002 230zM245.00002 337.497C 220.18701 337.497 200.001 357.685 200.001 382.501C 200.001 407.314 220.18901 427.502 245.00201 427.502C 269.815 427.502 290.001 407.31403 290.001 382.49802C 290.001 357.68503 269.81302 337.497 245 337.497zM245.00002 397.502C 236.72902 397.502 230.00102 390.773 230.00102 382.49802C 230.00102 374.22702 236.73003 367.497 245.00002 367.497L245.00002 367.497L245.00201 367.497C 253.27301 367.497 260.001 374.226 260.001 382.501C 260.001 390.772 253.27101 397.502 245 397.502z" stroke="none" fill="#FF0000" fill-rule="nonzero" />
+				</g>
+				</svg>'
+			}
+			$ClusterNodes_image_html += '&nbsp;&nbsp;'
+		}
+	}
+	
+
+	#PhysicalDisk
+	$Error.Clear()
+	$PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
+	catch { }
+	if($Error)
+	{
+		$PhysicalDisks_html += $Error[0].ToString()
+		$mail_body += $Error[0].ToString()
+	}
+	else 
+	{
+		$mail_body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
+
+		$PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
+		foreach ($PhysicalDisk in $PhysicalDisks)
+		{
+			$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td><td>'
+			if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<span class="label error">' + $PhysicalDisk.HealthStatus + '</span>' }
+			else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.HealthStatus + '</span>' }
+			$PhysicalDisks_html += '</td><tr>'
+		}
+
+		$PhysicalDisks_html += '</table><br><br>'
+	}
+	
+
+
+	#VirtualDisks
+	$Error.Clear()
+	$VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
+	catch { }
+	if($Error)
+	{
+		$VirtualDisks_html = $Error[0].ToString()
+		$mail_body += $Error[0].ToString()
+	}
+	else 
+	{
+		$mail_body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
+
+		$VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
+		foreach ($VirtualDisk in $VirtualDisks)
+		{
+			$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' 
+			if($VirtualDisk.OperationalStatus -ne "OK")
+			{
+				$VirtualDisks_html += '<span class="label error">' + $VirtualDisk.OperationalStatus + '</span>'
+			}
+			else{
+				$VirtualDisks_html += '<span class="label success">' + $VirtualDisk.OperationalStatus + '</span>'
+			}
+			$VirtualDisks_html +=  '</td><td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
+		}
+
+		$VirtualDisks_html += '</table><br><br>'
+	}
+	
+
+
+	#Get-VM details
+	$Error.Clear()
+	$VMs = try { Get-ClusterGroup | Where-Object {$_.GroupType -eq "VirtualMachine"} | Select-Object Name, OwnerNode, State } catch {}
+	if($Error)
+	{
+		$VMs_html = $Error[0].ToString()
+		$mail_body += $Error[0].ToString()
 	}
 	else
 	{
-		$ClusterNodes_html += '<span class="label error">' + $ClusterNode.State + '</span>'
+		$mail_body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
+
+		$VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
+		foreach($vm in $VMs)
+		{
+			$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td><td>' 
+			if($vm.State -eq "Online")
+			{
+				$VMs_html += '<span class="label success">' + $vm.State + '</span>'
+			}
+			else {
+				$VMs_html += '<span class="label error">' + $vm.State + '</span>'
+			}
+
+			$VMs_html += '</td></tr>'
+		}
+		$VMs_html += '</table><br><br>'
 	}
-	$ClusterNodes_html += '</td></tr>'
 	
-}
-$ClusterNodes_html += '</table><br><br>'
 
-foreach ($ClusterNode in $ClusterNodes)
-{
-	if ($ClusterNode.State -eq "Up")
+	#Get disks not in S2D pool
+	$Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason -ne "In a Pool"}
+
+	if($Disksnotinpool)
 	{
-		$ClusterNodes_image_html += '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="body_1" width="51" height="38">
-		<g transform="matrix(0.07755102 0 0 0.07755102 6.500001 -0)">
-			<path d="M445 460L420.002 460L420.002 15C 420.002 6.7159996 413.286 0 405.002 0L405.002 0L85 0C 76.716 0 70 6.716 70 15L70 15L70 460L45 460C 36.716 460 30 466.716 30 475C 30 483.284 36.716 490 45 490L45 490L445 490C 453.284 490 460 483.284 460 475C 460 466.716 453.284 460 445 460zM390.002 460L100 460L100 30L390.002 30L390.002 460zM145.00201 300L345 300C 353.284 300 360 293.284 360 285L360 285L360 75C 360 66.716 353.284 60 345 60L345 60L145.002 60C 136.718 60 130.002 66.716 130.002 75L130.002 75L130.002 285C 130.002 293.284 136.718 300 145.002 300zM160.00201 90L330 90L330 130L160.002 130L160.002 90zM160.00201 160L330 160L330 200L160.002 200L160.002 160zM160.00201 230L330 230L330 270L160.002 270L160.002 230zM245.00002 337.497C 220.18701 337.497 200.001 357.685 200.001 382.501C 200.001 407.314 220.18901 427.502 245.00201 427.502C 269.815 427.502 290.001 407.31403 290.001 382.49802C 290.001 357.68503 269.81302 337.497 245 337.497zM245.00002 397.502C 236.72902 397.502 230.00102 390.773 230.00102 382.49802C 230.00102 374.22702 236.73003 367.497 245.00002 367.497L245.00002 367.497L245.00201 367.497C 253.27301 367.497 260.001 374.226 260.001 382.501C 260.001 390.772 253.27101 397.502 245 397.502z" stroke="none" fill="#00FF00" fill-rule="nonzero" />
-		</g>
-		</svg>'
+		$mail_body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | ConvertTo-Html -Fragment)
+		$html += '<span class="label error">Disks not in S2DPool</span>'
+		$html += '<span class="label error">' + ($Disksnotinpool | Out-String) + '</span>'
 	}
-	else
-	{
-		$ClusterNodes_image_html += '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="body_1" width="51" height="38">
-		<g transform="matrix(0.07755102 0 0 0.07755102 6.500001 -0)">
-			<path d="M445 460L420.002 460L420.002 15C 420.002 6.7159996 413.286 0 405.002 0L405.002 0L85 0C 76.716 0 70 6.716 70 15L70 15L70 460L45 460C 36.716 460 30 466.716 30 475C 30 483.284 36.716 490 45 490L45 490L445 490C 453.284 490 460 483.284 460 475C 460 466.716 453.284 460 445 460zM390.002 460L100 460L100 30L390.002 30L390.002 460zM145.00201 300L345 300C 353.284 300 360 293.284 360 285L360 285L360 75C 360 66.716 353.284 60 345 60L345 60L145.002 60C 136.718 60 130.002 66.716 130.002 75L130.002 75L130.002 285C 130.002 293.284 136.718 300 145.002 300zM160.00201 90L330 90L330 130L160.002 130L160.002 90zM160.00201 160L330 160L330 200L160.002 200L160.002 160zM160.00201 230L330 230L330 270L160.002 270L160.002 230zM245.00002 337.497C 220.18701 337.497 200.001 357.685 200.001 382.501C 200.001 407.314 220.18901 427.502 245.00201 427.502C 269.815 427.502 290.001 407.31403 290.001 382.49802C 290.001 357.68503 269.81302 337.497 245 337.497zM245.00002 397.502C 236.72902 397.502 230.00102 390.773 230.00102 382.49802C 230.00102 374.22702 236.73003 367.497 245.00002 367.497L245.00002 367.497L245.00201 367.497C 253.27301 367.497 260.001 374.226 260.001 382.501C 260.001 390.772 253.27101 397.502 245 397.502z" stroke="none" fill="#FF0000" fill-rule="nonzero" />
-		</g>
-		</svg>'
-	}
-	$ClusterNodes_image_html += '&nbsp;&nbsp;'
-	
 }
 
 
-#PhysicalDisk
-$PhysicalDisks = try { Get-PhysicalDisk -ErrorAction Stop | Where-Object { $_.DeviceId -match "\w{4}" -or !($_.DeviceId) } }
-catch { }
-$mail_body += '<br><br>' + ($PhysicalDisks | Select-Object DeviceId, UniqueId, Manufacturer, Model, SerialNumber, CannotPoolReason, Size, Usage, OperationalStatus, HealthStatus | ConvertTo-Html -Fragment)
-
-$PhysicalDisks_html += '<table><tr><th>DeviceId</th><th>UniqueId </th><th>Manufacturer </th><th>Model </th><th>SerialNumber </th><th>CannotPoolReason </th><th>Size </th><th>Usage </th><th>OperationalStatus </th><th>HealthStatus </th></tr>'
-foreach ($PhysicalDisk in $PhysicalDisks)
-{
-	$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td><td>'
-	if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<span class="label error">' + $PhysicalDisk.HealthStatus + '</span>' }
-	else { $PhysicalDisks_html += '<span class="label success">' + $PhysicalDisk.HealthStatus + '</span>' }
-	$PhysicalDisks_html += '</td><tr>'
-}
-
-$PhysicalDisks_html += '</table><br><br>'
-
-
-#VirtualDisks
-$VirtualDisks = try { Get-VirtualDisk -ErrorAction Stop }
-catch { }
-$mail_body += '<br><br>' + ($VirtualDisks | Select-Object FriendlyName, OperationalStatus, HealthStatus, Size, FootprintOnPool | ConvertTo-Html -Fragment)
-
-$VirtualDisks_html = '<table><tr><th>FriendlyName</th><th>OperationalStatus</th><th>HealthStatus</th><th>Size</th><th>FootprintOnPool</th></tr>'
-foreach ($VirtualDisk in $VirtualDisks)
-{
-	$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td><td>' 
-	if($VirtualDisk.OperationalStatus -ne "OK")
-	{
-		$VirtualDisks_html += '<span class="label error">' + $VirtualDisk.OperationalStatus + '</span>'
-	}
-	else{
-		$VirtualDisks_html += '<span class="label success">' + $VirtualDisk.OperationalStatus + '</span>'
-	}
-	$VirtualDisks_html +=  '</td><td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
-}
-
-$VirtualDisks_html += '</table><br><br>'
-
-
-#Get-VM details
-$VMs = Get-ClusterGroup | Where-Object {$_.GroupType -eq "VirtualMachine"} | Select-Object Name, OwnerNode, State
-$mail_body += '<br><br>' + ($VMs | ConvertTo-Html -Fragment)
-
-$VMs_html = '<table><tr><th>Name</th><th>OwnerNode</th><th>State</th></tr>'
-foreach($vm in $VMs)
-{
-	$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td><td>' 
-	if($vm.State -eq "Online")
-	{
-		$VMs_html += '<span class="label success">' + $vm.State + '</span>'
-	}
-	else {
-		$VMs_html += '<span class="label error">' + $vm.State + '</span>'
-	}
-
-	$VMs_html += '</td></tr>'
-}
-$VMs_html += '</table><br><br>'
-
-#Get disks not in S2D pool
-$Disksnotinpool = $PhysicalDisks | Where-Object {$_.CannotPoolReason -ne "In a Pool"}
-
-if($Disksnotinpool)
-{
-	$mail_body += 'Disks not in S2DPool<br>' + ($Disksnotinpool | Select-Object DeviceId, OperationalStatus, HealthStatus, CannotPoolReason | ConvertTo-Html -Fragment)
-	$html += '<span class="label error">Disks not in S2DPool</span>'
-	$html += '<span class="label error">' + ($Disksnotinpool | Out-String) + '</span>'
-}
 
 ################Start html file #####################
 #####################################################
@@ -232,5 +281,5 @@ $html += @'
 '@
 
 $html | Out-File $htmlfile
-$mail_body | Out-File $mailbody
-Write-Host (Get-Content $mailbody)
+#$mail_body | Out-File $mailbody
+$mail_body | Out-File $htmlfile
