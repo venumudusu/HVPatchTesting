@@ -36,4 +36,3 @@
         body: "{{ data1['content'] | b64decode(encoding='utf-16') }}"
         attach: "{{ htmlfile.dest }}"
       delegate_to: localhost
-      
