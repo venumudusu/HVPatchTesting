@@ -15,16 +15,13 @@ param
 	[String]$htmlfile
 )
 
-$mail_body = "<style> .success2 { font: italic bold; color: #4CAF50; } .error2 { font: italic bold; color: #f44336; } </style>"
 $html = ""
 
 #Clear errors if any
 $Error.Clear()
 
 #Get Cluster Name
-$Cluster = try { Get-Cluster -ErrorAction Stop }
-catch { $_.Exception.Message }
-
+$Cluster = try { Get-Cluster -ErrorAction Stop } catch { $_.Exception.Message }
 if($Error)
 {
 	$html += $Error[0].ToString()
@@ -185,7 +182,6 @@ else
 $html  = @'
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>
 '@
@@ -194,7 +190,6 @@ $html += @'
 </title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <style>
     body { font-family: Arial, sans-serif; }
     .navbar { padding-top: 15px;padding-bottom: 15px;border: 1;border-radius: 0.5;margin-bottom: 0;font-size: 12px;letter-spacing: 5px;background-color: black;}
@@ -213,13 +208,11 @@ $html += @'
 	div.perfgraph { width: 80%;margin-left: auto;margin-right: auto; }
   </style>
 </head>
-
 <body>
   <nav class="navbar heading"><strong>Cluster Health Check Report - 
 '@
 $html += $Cluster.Name
 $html += @'
-
 </strong></nav>
   <table>
     <tr>
