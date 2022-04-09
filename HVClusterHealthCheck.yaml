@@ -29,11 +29,6 @@
         src: "{{ tempfile_2.path }}"
       register: data2
 
-    #- name: Decode data
-    #  set_fact:
-    #    data2: "{{ data2['content'] | b64decode(encoding='utf-16') }}"
-    #  delegate_to: localhost
-
     - name: Send mail
       mail:
         host: dc01.winadmin.local
