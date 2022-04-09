@@ -16,7 +16,7 @@ param
 	[String]$mailbody
 )
 
-$mail_body = "<style> .success2 { font: italic bold; color: green; } .error2 { font: italic bold; color: red; } </style>"
+$mail_body = "<style> .success2 { font: italic bold; color: #4CAF50; } .error2 { font: italic bold; color: #f44336; } </style>"
 $html = ""
 
 #Clear errors if any
@@ -54,11 +54,11 @@ else
 			$ClusterNodes_html += '<tr><td>' + $ClusterNode.Id + '</td><td>' + $ClusterNode.Name + '</td>' 
 			if ($ClusterNode.State -eq "Up")
 			{
-				$ClusterNodes_html += '<td bgcolor="green"><span class="label success">Up</span></td>'
+				$ClusterNodes_html += '<td bgcolor="#4CAF50"><span class="label success">Up</span></td>'
 			}
 			else
 			{
-				$ClusterNodes_html += '<td bgcolor="red"><span class="label error">' + $ClusterNode.State + '</span></td>'
+				$ClusterNodes_html += '<td bgcolor="#f44336"><span class="label error">' + $ClusterNode.State + '</span></td>'
 			}
 			$ClusterNodes_html += '</tr>'
 			
@@ -105,8 +105,8 @@ else
 		foreach ($PhysicalDisk in $PhysicalDisks)
 		{
 			$PhysicalDisks_html += '<tr><td>' + $PhysicalDisk.DeviceId + '</td><td>' + $PhysicalDisk.UniqueId + '</td><td>' + $PhysicalDisk.Manufacturer + '</td><td>' + $PhysicalDisk.Model + '</td><td>' + $PhysicalDisk.SerialNumber + '</td><td>' + $PhysicalDisk.CannotPoolReason + '</td><td>' + [Math]::Round($PhysicalDisk.Size/1GB) + ' GB</td><td>' + $PhysicalDisk.Usage + '</td><td>' + $PhysicalDisk.OperationalStatus + '</td>'
-			if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<td bgcolor="red"><span class="label error">' + $PhysicalDisk.HealthStatus + '</span></td>' }
-			else { $PhysicalDisks_html += '<td bgcolor="green"><span class="label success">' + $PhysicalDisk.HealthStatus + '</span></td>' }
+			if ($PhysicalDisk.HealthStatus -ne "Healthy") { $PhysicalDisks_html += '<td bgcolor="#f44336"><span class="label error">' + $PhysicalDisk.HealthStatus + '</span></td>' }
+			else { $PhysicalDisks_html += '<td bgcolor="#4CAF50"><span class="label success">' + $PhysicalDisk.HealthStatus + '</span></td>' }
 			$PhysicalDisks_html += '<tr>'
 		}
 
@@ -134,10 +134,10 @@ else
 			$VirtualDisks_html += '<tr><td>' + $VirtualDisk.FriendlyName + '</td>' 
 			if($VirtualDisk.OperationalStatus -ne "OK")
 			{
-				$VirtualDisks_html += '<td bgcolor="red"><span class="label error">' + $VirtualDisk.OperationalStatus + '</span></td>'
+				$VirtualDisks_html += '<td bgcolor="#f44336"><span class="label error">' + $VirtualDisk.OperationalStatus + '</span></td>'
 			}
 			else{
-				$VirtualDisks_html += '<td bgcolor="green"><span class="label success">' + $VirtualDisk.OperationalStatus + '</span></td>'
+				$VirtualDisks_html += '<td bgcolor="#4CAF50"><span class="label success">' + $VirtualDisk.OperationalStatus + '</span></td>'
 			}
 			$VirtualDisks_html +=  '<td>' + $VirtualDisk.HealthStatus + '</td><td>' + [Math]::Round($VirtualDisk.Size/1GB) + ' GB</td><td>' + [Math]::Round($VirtualDisk.FootprintOnPool/1GB) + '</td></tr>'
 		}
@@ -165,10 +165,10 @@ else
 			$VMs_html += '<tr><td>' + $vm.Name + '</td><td>' + $vm.OwnerNode + '</td>' 
 			if($vm.State -eq "Online")
 			{
-				$VMs_html += '<td bgcolor="green"><span class="label success">' + $vm.State + '</span></td>'
+				$VMs_html += '<td bgcolor="#4CAF50"><span class="label success">' + $vm.State + '</span></td>'
 			}
 			else {
-				$VMs_html += '<td bgcolor="red"><span class="label error">' + $vm.State + '</span></td>'
+				$VMs_html += '<td bgcolor="#f44336"><span class="label error">' + $vm.State + '</span></td>'
 			}
 
 			$VMs_html += '</tr>'
