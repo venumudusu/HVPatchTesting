@@ -282,4 +282,4 @@ $html += @'
 
 $html | Out-File $htmlfile
 #$mail_body | Out-File $mailbody
-$mail_body | Out-File $htmlfile
+$html | Out-File $mailbody
