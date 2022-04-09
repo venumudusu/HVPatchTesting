@@ -231,16 +231,6 @@ $html += @'
 </html>
 '@
 
-#$username = "admin@winadmin.org"
-#$password = "creMa6u7!"
-#[SecureString]$secureString = $password | ConvertTo-SecureString -AsPlainText -Force
-#[PSCredential]$secureCredentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $secureString
-
 $html | Out-File $htmlfile
 $mail_body | Out-File $mailbody
 Write-Host (Get-Content $mailbody)
-
-#Send-MailMessage -From "admin@winadmin.org" -To "admin@winadmin.org" -Subject ("Hyper-V CLuster Health Check Report - " + $ClusterName) -Body $($mail_body) -SmtpServer mail.winadmin.org -BodyAsHtml -UseSsl -Credential $secureCredentials -Attachments HealthCheckReport.html
-# Create the message
-#Remove-Item HealthCheckReport.html -Force
-#Remove-Item body.txt

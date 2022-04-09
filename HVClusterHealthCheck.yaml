@@ -6,7 +6,7 @@
     - name: Create temp file
       win_tempfile:
         state: file
-        suffix: html
+        suffix: .html
       register: tempfile_1
 
     - name: Create temp file 2
@@ -22,15 +22,7 @@
       fetch:
         src: "{{ tempfile_1.path }}"
         dest: /tmp/logs
-      #slurp:
-      #  src: "{{ tempfile_1.path }}"
-      #register: data1
       register: htmlfile
-
-    #- name: Decode data
-    #  set_fact:
-    #    data1: "{{ data1['content'] | b64decode(encoding='utf-16') }}"
-    #  delegate_to: localhost
 
     - name: Fetch mail_body
       slurp:
@@ -41,11 +33,6 @@
       set_fact:
         data2: "{{ data2['content'] | b64decode(encoding='utf-16') }}"
       delegate_to: localhost
-
-#    - name: read file
-#      shell: cat "{{ htmlfile.dest }}"
-#      register: htmlcontent
-#      delegate_to: localhost
 
     - name: Send mail
       mail:
