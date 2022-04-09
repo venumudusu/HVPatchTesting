@@ -19,18 +19,18 @@
       script: ClusterHealthCheck.ps1 -htmlfile {{ tempfile_1.path }} -mailbody {{ tempfile_2.path }}
 
     - name: Fetch output from Cluster
-      #fetch:
-      #  src: "{{ tempfile_1.path }}"
-      #  dest: /tmp/logs
-      slurp:
+      fetch:
         src: "{{ tempfile_1.path }}"
-      register: data1
-      #register: htmlfile
+        dest: /tmp/logs
+      #slurp:
+      #  src: "{{ tempfile_1.path }}"
+      #register: data1
+      register: htmlfile
 
-    - name: Decode data
-      set_fact:
-        data1: "{{ data1['content'] | b64decode(encoding='utf-16') }}"
-      delegate_to: localhost
+    #- name: Decode data
+    #  set_fact:
+    #    data1: "{{ data1['content'] | b64decode(encoding='utf-16') }}"
+    #  delegate_to: localhost
 
     - name: Fetch mail_body
       slurp:
@@ -58,6 +58,6 @@
         subject: Hyper-V CLuster Health Check Report
         subtype: html
         body: "{{ data2 }}"
-        attach: "{{ data1 }}"
+        attach: "{{ htmlfile.dest }}"
       delegate_to: localhost
       
